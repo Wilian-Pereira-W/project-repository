@@ -1,8 +1,15 @@
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import Main from './pages/Main';
+import Repository from './pages/Repository';
+
 function App() {
   return (
-    <div className="App">
-      <h1>Home</h1>
-    </div>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<Main />} />
+        <Route path="/repository/:repository" element={<Repository />} />
+      </Routes>
+    </BrowserRouter>
   );
 }
 
