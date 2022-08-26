@@ -1,17 +1,31 @@
 import styles from './styles.module.scss';
 import { FaGithub, FaPlus } from 'react-icons/fa';
-import { SyntheticEvent, useState } from 'react';
+import { SyntheticEvent, useCallback, useState } from 'react';
+import api from '../../service/api';
+
 function Main() {
   const [newRepo, setNewRepo] = useState<string>('');
+  const [repositories, setRepositories] = useState<{ name: string }[]>([]);
 
   const handleInputChange = (value: string) => {
     setNewRepo(value);
   };
 
-  const handleSubmit = (e: SyntheticEvent) => {
-    e.preventDefault();
-    console.log(newRepo);
-  };
+  const handleSubmit = useCallback(
+    (e: SyntheticEvent) => {
+      e.preventDefault();
+      api
+        .get(`repos/${newRepo}`)
+        .then((response) => {
+          setRepositories([...repositories, { name: response.data.full_name }]);
+          setNewRepo('');
+        })
+        .catch((err: Error) => {
+          console.error('ops! ocorreu um erro' + err);
+        });
+    },
+    [newRepo, repositories],
+  );
 
   return (
     <div className={styles.container}>
