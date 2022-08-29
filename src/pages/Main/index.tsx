@@ -1,11 +1,13 @@
 import styles from './styles.module.scss';
-import { FaGithub, FaPlus } from 'react-icons/fa';
+import { FaGithub, FaPlus, FaSpinner } from 'react-icons/fa';
 import { SyntheticEvent, useCallback, useState } from 'react';
 import api from '../../service/api';
+import { INameRepository } from '../../interface/nameRepository';
 
 function Main() {
   const [newRepo, setNewRepo] = useState<string>('');
-  const [repositories, setRepositories] = useState<{ name: string }[]>([]);
+  const [repositories, setRepositories] = useState<INameRepository[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const handleInputChange = (value: string) => {
     setNewRepo(value);
@@ -14,6 +16,7 @@ function Main() {
   const handleSubmit = useCallback(
     (e: SyntheticEvent) => {
       e.preventDefault();
+      setLoading(true);
       api
         .get(`repos/${newRepo}`)
         .then((response) => {
@@ -22,6 +25,9 @@ function Main() {
         })
         .catch((err: Error) => {
           console.error('ops! ocorreu um erro' + err);
+        })
+        .finally(() => {
+          setLoading(false);
         });
     },
     [newRepo, repositories],
@@ -40,8 +46,16 @@ function Main() {
           value={newRepo}
           onChange={({ target }) => handleInputChange(target.value)}
         />
-        <button type="submit" className={styles.contentFormButton}>
-          <FaPlus color="#FFF" size={14} />
+        <button
+          type="submit"
+          className={styles.contentFormButton}
+          disabled={loading}
+        >
+          {loading ? (
+            <FaSpinner color="#FFF" size={14} className={styles.spinner} />
+          ) : (
+            <FaPlus color="#FFF" size={14} />
+          )}
         </button>
       </form>
     </div>
