@@ -1,6 +1,6 @@
 import styles from './styles.module.scss';
 import { FaBars, FaGithub, FaPlus, FaSpinner, FaTrash } from 'react-icons/fa';
-import { SyntheticEvent, useCallback, useState } from 'react';
+import { SyntheticEvent, useCallback, useEffect, useState } from 'react';
 import api from '../../service/api';
 import { INameRepository } from '../../interface/nameRepository';
 
@@ -9,6 +9,21 @@ function Main() {
   const [repositories, setRepositories] = useState<INameRepository[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [alert, setAlert] = useState<null | boolean>(null);
+
+  useEffect(() => {
+    const repoStorage: string | null = localStorage.getItem('repos');
+    if (repoStorage) {
+      console.log('oi');
+      const respos: INameRepository[] = JSON.parse(repoStorage);
+      setRepositories(respos);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (repositories.length !== 0) {
+      localStorage.setItem('repos', JSON.stringify(repositories));
+    }
+  }, [repositories]);
 
   const handleInputChange = (value: string) => {
     setNewRepo(value);
