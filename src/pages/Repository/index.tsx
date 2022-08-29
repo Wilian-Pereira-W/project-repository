@@ -10,6 +10,7 @@ function Repository() {
   const [repository, setRepository] = useState<IUserRepository>({});
   const [issues, setIssues] = useState<IIssue[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [page, setPage] = useState<number>(1);
 
   useEffect(() => {
     const nameRepo = params.repository;
@@ -32,6 +33,28 @@ function Repository() {
 
     load();
   }, [params]);
+
+  useEffect(() => {
+    const loadIssue = async () => {
+      const nameRepo = params.repository;
+
+      const response = await api.get(`/repos/${nameRepo}/issues`, {
+        params: {
+          state: 'open',
+          page,
+          per_page: 5,
+        },
+      });
+
+      setIssues(response.data);
+    };
+
+    loadIssue();
+  }, [page, params.repository]);
+
+  const handlePage = (action: string) => {
+    setPage(action === 'back' ? page - 1 : page + 1);
+  };
 
   if (loading) {
     return (
@@ -71,6 +94,19 @@ function Repository() {
           ))}
         </ul>
       </main>
+      <section className={styles.pageActions}>
+        {}
+        <button
+          type="button"
+          onClick={() => handlePage('back')}
+          disabled={page < 2}
+        >
+          Voltar
+        </button>
+        <button type="button" onClick={() => handlePage('next')}>
+          Próxima
+        </button>
+      </section>
     </div>
   );
 }
