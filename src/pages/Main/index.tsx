@@ -1,5 +1,5 @@
 import styles from './styles.module.scss';
-import { FaGithub, FaPlus, FaSpinner } from 'react-icons/fa';
+import { FaBars, FaGithub, FaPlus, FaSpinner, FaTrash } from 'react-icons/fa';
 import { SyntheticEvent, useCallback, useState } from 'react';
 import api from '../../service/api';
 import { INameRepository } from '../../interface/nameRepository';
@@ -33,6 +33,14 @@ function Main() {
     [newRepo, repositories],
   );
 
+  const handleDelete = useCallback(
+    (repo: string) => {
+      const find = repositories.filter((r) => r.name !== repo);
+      setRepositories(find);
+    },
+    [repositories],
+  );
+
   return (
     <div className={styles.container}>
       <h1>
@@ -48,7 +56,7 @@ function Main() {
         />
         <button
           type="submit"
-          className={styles.contentFormButton}
+          className={styles.containsFormButton}
           disabled={loading}
         >
           {loading ? (
@@ -58,6 +66,26 @@ function Main() {
           )}
         </button>
       </form>
+
+      <ul className={styles.containsList}>
+        {repositories.map((repo, index) => (
+          <li key={index}>
+            <span>
+              <button
+                className={styles.buttonDelete}
+                type="button"
+                onClick={() => handleDelete(repo.name)}
+              >
+                <FaTrash size={14} />
+              </button>
+              {repo.name}
+            </span>
+            <a href="">
+              <FaBars size={20} />
+            </a>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
