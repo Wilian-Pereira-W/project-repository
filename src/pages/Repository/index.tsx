@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { FaArrowLeft } from 'react-icons/fa';
 import { Link, useParams } from 'react-router-dom';
+import { IFilter } from '../../interface/filter';
 import { IIssue } from '../../interface/issue';
 import { IUserRepository } from '../../interface/userRepository';
 import api from '../../service/api';
@@ -11,6 +12,27 @@ function Repository() {
   const [issues, setIssues] = useState<IIssue[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [page, setPage] = useState<number>(1);
+  const [filters] = useState<IFilter[]>([
+    {
+      id: 0,
+      state: 'all',
+      label: 'Todas',
+      active: true,
+    },
+    {
+      id: 1,
+      state: 'open',
+      label: 'Abertas',
+      active: false,
+    },
+    {
+      id: 2,
+      state: 'closed',
+      label: 'Fechadas',
+      active: false,
+    },
+  ]);
+  const [filterIndex, setFilterIndex] = useState<number>(0);
 
   useEffect(() => {
     const nameRepo = params.repository;
@@ -20,7 +42,7 @@ function Repository() {
         api.get(`/repos/${nameRepo}`),
         api.get(`/repos/${nameRepo}/issues`, {
           params: {
-            state: 'open',
+            state: filters.find((f) => f.active)?.state,
             per_page: 5,
           },
         }),
@@ -32,7 +54,7 @@ function Repository() {
     }
 
     load();
-  }, [params]);
+  }, [filters, params]);
 
   useEffect(() => {
     const loadIssue = async () => {
@@ -40,7 +62,7 @@ function Repository() {
 
       const response = await api.get(`/repos/${nameRepo}/issues`, {
         params: {
-          state: 'open',
+          state: filters[filterIndex].state,
           page,
           per_page: 5,
         },
@@ -50,10 +72,21 @@ function Repository() {
     };
 
     loadIssue();
-  }, [page, params.repository]);
+  }, [filterIndex, filters, page, params.repository]);
 
   const handlePage = (action: string) => {
     setPage(action === 'back' ? page - 1 : page + 1);
+  };
+
+  const handleFilter = (index: number) => {
+    setFilterIndex(index);
+    filters.forEach((element) => {
+      if (element.id === index) {
+        element.active = true;
+      } else {
+        element.active = false;
+      }
+    });
   };
 
   if (loading) {
@@ -63,7 +96,6 @@ function Repository() {
       </div>
     );
   }
-
   return (
     <div className={styles.container}>
       <Link to="/">
@@ -75,6 +107,18 @@ function Repository() {
         <p>{repository.description}</p>
       </header>
       <main>
+        <section className={styles.filterList}>
+          {filters.map((filter, index) => (
+            <button
+              type="button"
+              key={filter.label}
+              className={filter.active ? styles.enable : ''}
+              onClick={() => handleFilter(index)}
+            >
+              {filter.label}
+            </button>
+          ))}
+        </section>
         <ul className={styles.issuesList}>
           {issues.map((issue) => (
             <li key={String(issue.id)}>
