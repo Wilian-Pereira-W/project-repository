@@ -8,22 +8,32 @@ function Main() {
   const [newRepo, setNewRepo] = useState<string>('');
   const [repositories, setRepositories] = useState<INameRepository[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [alert, setAlert] = useState<null | boolean>(null);
 
   const handleInputChange = (value: string) => {
     setNewRepo(value);
+    setAlert(null);
   };
 
   const handleSubmit = useCallback(
     (e: SyntheticEvent) => {
       e.preventDefault();
       setLoading(true);
+      setAlert(null);
       api
         .get(`repos/${newRepo}`)
         .then((response) => {
+          const hasRepo = repositories.find((r) => r.name === newRepo);
+
+          if (hasRepo) {
+            throw new Error('Repositório Duplicado');
+          }
+
           setRepositories([...repositories, { name: response.data.full_name }]);
           setNewRepo('');
         })
         .catch((err: Error) => {
+          setAlert(true);
           console.error('ops! ocorreu um erro' + err);
         })
         .finally(() => {
@@ -52,6 +62,7 @@ function Main() {
           type="text"
           id="Adicionar Repositórios"
           value={newRepo}
+          className={alert ? styles.inputAlert : ''}
           onChange={({ target }) => handleInputChange(target.value)}
         />
         <button
