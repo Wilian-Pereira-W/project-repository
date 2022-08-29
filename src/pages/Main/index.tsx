@@ -14,7 +14,6 @@ function Main() {
   useEffect(() => {
     const repoStorage: string | null = localStorage.getItem('repos');
     if (repoStorage) {
-      console.log('oi');
       const respos: INameRepository[] = JSON.parse(repoStorage);
       setRepositories(respos);
     }
