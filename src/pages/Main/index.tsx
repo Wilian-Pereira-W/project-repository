@@ -3,6 +3,7 @@ import { FaBars, FaGithub, FaPlus, FaSpinner, FaTrash } from 'react-icons/fa';
 import { SyntheticEvent, useCallback, useEffect, useState } from 'react';
 import api from '../../service/api';
 import { INameRepository } from '../../interface/nameRepository';
+import { Link } from 'react-router-dom';
 
 function Main() {
   const [newRepo, setNewRepo] = useState<string>('');
@@ -106,9 +107,9 @@ function Main() {
               </button>
               {repo.name}
             </span>
-            <a href="">
+            <Link to={`/repository/${encodeURIComponent(repo.name)}`}>
               <FaBars size={20} />
-            </a>
+            </Link>
           </li>
         ))}
       </ul>
